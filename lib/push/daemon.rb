@@ -89,12 +89,14 @@ module Push
     end
 
     def self.daemonize
-      if pid = fork
-        Process.detach
-        exit
-      end
-      Process.setsid
+      # if pid = fork
+      #   Process.detach
+      #   exit
+      # end
+      # Process.setsid
       #exit if pid = fork
+      # make this process system daemon
+      Process.daemon()
 
       Dir.chdir '/'
       File.umask 0000
