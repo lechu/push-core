@@ -139,7 +139,10 @@ module Push
         line = file.gets
         pid_number = line.to_i
         if pid_number > 0
+          logger.info("Sending TERM to proces PID:#{pid_number}")
           Process.kill("TERM", pid_number)
+          Process.wait
+          logger.info("Process with PID:#{pid_number} stops.")
         else
           logger.error("PID file contain invalid data")
         end
