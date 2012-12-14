@@ -93,8 +93,9 @@ Where `<environment>` is your Rails environment and `<options>` can be:
     -F, --feedback-poll N            Frequency in seconds to check for feedback for the feedback processor. Default: 60. Use 0 to disable.
     -b, --feedback-processor PATH    Path to the feedback processor. Default: lib/push/feedback_processor.
     -v, --version                    Print this version of push.
+    -s, --stop                       Stop working daemon
+    -r, --restart                    Restart daemon
     -h, --help                       You're looking at it.
-
 
 ## Sending notifications
 APNS:
@@ -141,6 +142,17 @@ The push-core comes with a rake task to delete all the messages and feedback of 
 Push runs on Heroku with the following line in the `Procfile`.
 
     push: bundle exec push $RACK_ENV -f
+
+## Capistrano
+
+Add to end of deploy.rb file.
+
+    desc "start push-core daemon"
+    task :start_push_core_daemon do
+      run "cd #{latest_release}; bundle exec push #{rails_env} -r"
+    end
+
+    after "deploy:finalize_update", "start_push_core_daemon"
 
 ## Prerequisites
 
