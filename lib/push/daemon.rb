@@ -26,7 +26,13 @@ module Push
 
       if config[:stop_daemon]
         stop_working_daemon
+      elsif is_pid_file_exists
+        logger.info("[Daemon] process already running. Remove pid file or use -r option.")
       else
+        if config[:restart_daemon]
+          stop_working_daemon
+        end
+        
         setup_signal_hooks
 
         unless config.foreground
@@ -129,19 +135,24 @@ module Push
       pid_file = config[:pid_file]
       begin
         file = File.open(pid_file, "r")
-      rescue SystemCallError => e
-        logger.error("Failed to read PID from '#{config[:pid_file]}'. Is there any daemon working ?")
-      else
         # PID file should contain one line with process id
         line = file.gets
         pid_number = line.to_i
         if pid_number > 0
           Process.kill("TERM", pid_number)
         else
-          logger.error("PID file contain wrong data")
+          logger.error("PID file contain invalid data")
         end
+        file.close
+      rescue SystemCallError => e
+        logger.error("Failed to read PID from '#{config[:pid_file]}'. Is there any daemon working ?")
       end
 
+    end
+
+    def self.is_pid_file_exists
+      pid_file = config[:pid_file]
+      File.exist?(pid_file)
     end
 
   end

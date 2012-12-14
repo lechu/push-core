@@ -5,13 +5,14 @@ require 'push'
 
 environment = ARGV[0]
 
-config = Struct.new(:foreground, :pid_file, :push_poll, :error_notification, :feedback_poll, :feedback_processor, :stop_daemon).new
+config = Struct.new(:foreground, :pid_file, :push_poll, :error_notification, :feedback_poll, :feedback_processor, :stop_daemon, :restart_daemon).new
 config.foreground = false
 config.push_poll = 2
 config.error_notification = false
 config.feedback_poll = 60
 config.feedback_processor = 'lib/push/feedback_processor'
 config.stop_daemon = false
+config.restart_daemon = false
 #config file must always contain pid file name !!!!!!!!!!!!!!!!!!!!!
 config.pid_file = 'push_core_daemon.pid'
 
@@ -26,6 +27,7 @@ ARGV.options do |opts|
   opts.on('-b PATH', '--feedback-processor PATH', String, "Path to the feedback processor. Default: #{config.feedback_processor}.") { |n| config.feedback_processor = n }
   opts.on('-v', '--version', 'Print this version of push.') { puts "push #{Push::VERSION}"; exit }
   opts.on('-s', '--stop', 'Stop working daemon') { config.stop_daemon = true }
+  opts.on('-r', '--restart', 'Restart daemon') { config.restart_daemon = true }
   opts.on('-h', '--help', 'You\'re looking at it.') { puts opts; exit }
   opts.parse!
 end
