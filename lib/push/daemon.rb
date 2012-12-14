@@ -26,7 +26,7 @@ module Push
 
       if config[:stop_daemon]
         stop_working_daemon
-      elsif is_pid_file_exists
+      elsif is_pid_file_exists && !config[:restart_daemon]
         logger.info("[Daemon] process already running. Remove pid file or use -r option.")
       else
         if config[:restart_daemon]
