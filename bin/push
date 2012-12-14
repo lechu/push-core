@@ -22,6 +22,7 @@ ARGV.options do |opts|
   opts.on('-F N', '--feedback-poll N', Integer, "Frequency in seconds to check for feedback for the feedback processor. Default: #{config.feedback_poll}. Use 0 to disable.") { |n| config.feedback_poll = n }
   opts.on('-b PATH', '--feedback-processor PATH', String, "Path to the feedback processor. Default: #{config.feedback_processor}.") { |n| config.feedback_processor = n }
   opts.on('-v', '--version', 'Print this version of push.') { puts "push #{Push::VERSION}"; exit }
+  opts.on('-s', '--stop', 'Stop working daemon') { config.stop_daemon = true }
   opts.on('-h', '--help', 'You\'re looking at it.') { puts opts; exit }
   opts.parse!
 end

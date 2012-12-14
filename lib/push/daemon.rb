@@ -23,22 +23,30 @@ module Push
     def self.start(config)
       self.config = config
       self.logger = Logger.new(:foreground => config.foreground, :error_notification => config.error_notification)
-      setup_signal_hooks
 
-      unless config.foreground
-        daemonize
-        reconnect_database
+      #config file must always contain pid file name
+      config[:pid_file] ||= 'push_core_daemon.pid'
+
+      if config[:stop_daemon]
+        stop_working_daemon
+      else
+        setup_signal_hooks
+
+        unless config.foreground
+          daemonize
+          reconnect_database
+        end
+        write_pid_file
+
+        App.load
+        App.start
+        Feedback.load(config)
+        Feedback.start
+        rescale_poolsize(App.database_connections + Feedback.database_connections)
+
+        logger.info('[Daemon] Ready')
+        Feeder.start(config)
       end
-      write_pid_file
-
-      App.load
-      App.start
-      Feedback.load(config)
-      Feedback.start
-      rescale_poolsize(App.database_connections + Feedback.database_connections)
-
-      logger.info('[Daemon] Ready')
-      Feeder.start(config)
     end
 
     protected
@@ -61,7 +69,7 @@ module Push
     def self.setup_signal_hooks
       @shutting_down = false
 
-      ['SIGINT', 'SIGTERM'].each do |signal|
+      ['SIGINT', 'SIGTERM', 'TERM'].each do |signal|
         Signal.trap(signal) do
           handle_shutdown_signal
         end
@@ -76,6 +84,7 @@ module Push
 
     def self.shutdown
       print "\nShutting down..."
+      logger.info('[Daemon] Shutting down...')
       Feeder.stop
       Feedback.stop
       App.stop
@@ -118,5 +127,24 @@ module Push
       pid_file = config[:pid_file]
       File.delete(pid_file) if !pid_file.blank? && File.exists?(pid_file)
     end
+
+    def stop_working_daemon
+      pid_file = config[:pid_file]
+      file = File.open(pid_file, "r")
+      unless file
+        logger.error("Failed to read PID from '#{config[:pid_file]}'. Is there any daemon working ?")
+      else
+        # PID file should contain one line with process id
+        line = file.gets
+        pid_number = line.to_i
+        if pid_number > 0
+          Process.kill("TERM", pid_number)
+        else
+          logger.error("PID file contain wrong data")
+        end
+      end
+
+    end
+
   end
 end
