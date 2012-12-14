@@ -145,11 +145,11 @@ Push runs on Heroku with the following line in the `Procfile`.
 
 ## Capistrano
 
-Add to end of deploy.rb file.
+Add to config/deploy.rb file. 
 
     desc "start push-core daemon"
     task :start_push_core_daemon do
-      run "cd #{latest_release}; bundle exec push #{rails_env} -r"
+      run "cd #{latest_release}; bundle exec push #{rails_env} -r -p /path/to/pid/file.pid"
     end
 
     after "deploy:finalize_update", "start_push_core_daemon"
