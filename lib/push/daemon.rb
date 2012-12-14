@@ -127,8 +127,9 @@ module Push
 
     def self.stop_working_daemon
       pid_file = config[:pid_file]
-      file = File.open(pid_file, "r")
-      unless file
+      begin
+        file = File.open(pid_file, "r")
+      rescue SystemCallError => e
         logger.error("Failed to read PID from '#{config[:pid_file]}'. Is there any daemon working ?")
       else
         # PID file should contain one line with process id
