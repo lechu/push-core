@@ -24,9 +24,6 @@ module Push
       self.config = config
       self.logger = Logger.new(:foreground => config.foreground, :error_notification => config.error_notification)
 
-      #config file must always contain pid file name
-      config[:pid_file] ||= 'push_core_daemon.pid'
-
       if config[:stop_daemon]
         stop_working_daemon
       else
@@ -128,7 +125,7 @@ module Push
       File.delete(pid_file) if !pid_file.blank? && File.exists?(pid_file)
     end
 
-    def stop_working_daemon
+    def self.stop_working_daemon
       pid_file = config[:pid_file]
       file = File.open(pid_file, "r")
       unless file

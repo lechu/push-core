@@ -5,12 +5,15 @@ require 'push'
 
 environment = ARGV[0]
 
-config = Struct.new(:foreground, :pid_file, :push_poll, :error_notification, :feedback_poll, :feedback_processor).new
+config = Struct.new(:foreground, :pid_file, :push_poll, :error_notification, :feedback_poll, :feedback_processor, :stop_daemon).new
 config.foreground = false
 config.push_poll = 2
 config.error_notification = false
 config.feedback_poll = 60
 config.feedback_processor = 'lib/push/feedback_processor'
+config.stop_daemon = false
+#config file must always contain pid file name !!!!!!!!!!!!!!!!!!!!!
+config.pid_file = 'push_core_daemon.pid'
 
 banner = 'Usage: push <Rails environment> [options]'
 ARGV.options do |opts|
