@@ -89,9 +89,10 @@ module Push
     end
 
     def self.daemonize
-      logger.info("[Daemon] Starting with pid: #{Process.pid}")
       # make this process as system daemon
       Process.daemon()
+
+      logger.info("[Daemon] Starting with pid: #{Process.pid}")
 
       Dir.chdir '/'
       File.umask 0000
